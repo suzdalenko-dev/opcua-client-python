@@ -53,6 +53,12 @@ RECONNECT_DELAY_SECONDS = 22
 WATCHDOG_INTERVAL_SECONDS = 222
 
 
+# Tiempo máximo que se espera a que el servidor OPC UA
+# responda a la lectura del watchdog. Si se supera, se
+# considera la conexión caída y se fuerza la reconexión.
+WATCHDOG_READ_TIMEOUT_SECONDS = 10
+
+
 # Reintentos de escritura antes de considerar
 # que existe un fallo grave de almacenamiento.
 DISK_WRITE_MAX_RETRIES = 3

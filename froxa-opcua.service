@@ -1,0 +1,55 @@
+# Unidad systemd para el recolector OPC UA de FROXA.
+#
+# Instalacion (en el servidor Linux):
+#   1. Copia el proyecto, por ejemplo a:  /opt/froxa-opcua
+#   2. Crea el entorno virtual e instala dependencias:
+#        cd /opt/froxa-opcua
+#        python3 -m venv .venv
+#        .venv/bin/pip install -r requirements.txt
+#   3. Copia este archivo a:  /etc/systemd/system/froxa-opcua.service
+#   4. Activa y arranca:
+#        sudo systemctl daemon-reload
+#        sudo systemctl enable --now froxa-opcua
+#   5. Ver el estado y los logs:
+#        systemctl status froxa-opcua
+#        journalctl -u froxa-opcua -f
+
+[Unit]
+Description=FROXA - Recolector de datos OPC UA (ULMA / ANRITSU)
+# Esperar a que haya red antes de arrancar.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Carpeta del proyecto y comando de arranque.
+WorkingDirectory=/opt/froxa-opcua
+ExecStart=/opt/froxa-opcua/.venv/bin/python main.py
+
+# Si el proceso termina por un error fatal, systemd lo reinicia.
+Restart=always
+RestartSec=5
+
+# Parada limpia: el servicio captura SIGTERM y vacia la cola
+# pendiente antes de salir. Le damos margen suficiente.
+KillSignal=SIGTERM
+TimeoutStopSec=90
+
+# Crea y gestiona /var/lib/froxa-opcua (debe coincidir con
+# LOG_DIRECTORY de config.py) con los permisos correctos.
+StateDirectory=froxa-opcua
+
+# Usuario dedicado (recomendado). Crealo antes con:
+#   sudo useradd --system --no-create-home froxa
+# y descomenta estas dos lineas:
+#User=froxa
+#Group=froxa
+
+# Endurecimiento basico de seguridad.
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Datos generados por el servicio (no deben subirse al repositorio)
+/var/lib/froxa-opcua/
+*.log

@@ -1,11 +1,10 @@
 import asyncio
 from contextlib import suppress
-from multiprocessing.connection import Client
+from asyncua import Client
 from assets.exceptions import FatalServiceError
 from assets.funcions.func import check_free_disk_space, connection_watchdog, local_datetime_text, safe_write_health
 from assets.suscription_handler import SubscriptionHandler
-from config import MONITORED_ITEM_QUEUE_SIZE, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
-from main import ALL_TAGS
+from config import ALL_TAGS, MONITORED_ITEM_QUEUE_SIZE, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
 
 
 async def run_opcua_connection(stop_event, event_queue, fatal_event, fatal_state, service_state,):

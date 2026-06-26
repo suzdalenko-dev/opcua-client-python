@@ -2,7 +2,8 @@ import asyncio
 from contextlib import suppress
 from assets.connection import run_opcua_connection
 from assets.exceptions import FatalServiceError
-from assets.funcions.func import check_free_disk_space, file_writer, local_datetime_text, safe_write_health, set_fatal_error, stop_writer_normally, wait_before_reconnect
+from assets.funcions.func import check_free_disk_space, file_writer, local_datetime_text, safe_write_health, set_fatal_error, wait_before_reconnect
+from assets.funcions.func2 import stop_writer_normally
 from config import EVENT_QUEUE_MAX_SIZE, RECONNECT_DELAY_SECONDS
 
 

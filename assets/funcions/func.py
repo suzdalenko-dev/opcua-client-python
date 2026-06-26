@@ -3,11 +3,9 @@ from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
-import shutil
 from assets.exceptions import FatalServiceError
 from assets.funcions.func2 import local_datetime_text
-from assets.funcions.func3 import safe_write_health
-from config import DISK_RETRY_SECONDS, DISK_WRITE_MAX_RETRIES, LOG_DIRECTORY, MIN_FREE_DISK_BYTES, RECONNECT_DELAY_SECONDS, WATCHDOG_INTERVAL_SECONDS
+from assets.funcions.func3 import get_free_disk_bytes, safe_write_health
 from config import (
     DISK_RETRY_SECONDS,
     DISK_WRITE_MAX_RETRIES,
@@ -16,6 +14,7 @@ from config import (
     RECONNECT_DELAY_SECONDS,
     STAT_TAGS,
     WATCHDOG_INTERVAL_SECONDS,
+    WATCHDOG_READ_TIMEOUT_SECONDS,
 )
 
 
@@ -128,24 +127,6 @@ def get_stat_file_path(moment,):
     """
     directory = get_year_directory(moment)
     return directory / (f"{moment:%m}-stat.json")
-
-
-
-def get_health_file_path():
-    """
-    Ejemplo:
-        /var/lib/froxa-opcua/health.json
-    """
-    directory = Path(LOG_DIRECTORY)
-    directory.mkdir(parents=True, exist_ok=True,)
-    return directory / "health.json"
-
-
-
-def get_free_disk_bytes():
-    directory = Path(LOG_DIRECTORY)
-    directory.mkdir(parents=True, exist_ok=True,)
-    return shutil.disk_usage(directory).free
 
 
 
@@ -357,7 +338,10 @@ async def connection_watchdog(node, stop_event, event_queue, service_state,):
         except asyncio.TimeoutError:
             pass
 
-        await node.read_value()
+        await asyncio.wait_for(
+            node.read_value(),
+            timeout=WATCHDOG_READ_TIMEOUT_SECONDS,
+        )
 
         free_disk_bytes = (
             await asyncio.to_thread(check_free_disk_space)
