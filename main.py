@@ -1,46 +1,40 @@
-import asyncio
-from assets.exceptions import FatalServiceError
-from assets.funcions.func import  safe_write_health
-from assets.funcions.func2 import configure_stop_signals, local_datetime_text
-from assets.service import run_service
+"""
+Punto de entrada del recolector OPC UA de FROXA.
 
+Responsabilidad UNICA de este modulo: arrancar el servicio y pararlo
+de forma ordenada cuando llega Ctrl+C (SIGINT) o systemd (SIGTERM).
+
+Estructura del proyecto:
+    config.py          -> configuracion (URL, tags, rutas)
+    almacenamiento.py  -> guarda los datos en disco (jsonl + fsync)
+    suscripcion.py     -> recibe los cambios del equipo
+    servicio.py        -> conecta y mantiene la suscripcion
+    main.py            -> arranca todo (este archivo)
+"""
+
+import asyncio
+import signal
+
+from servicio import ejecutar
+
+
+def configurar_senales_de_parada(stop_event):
+    loop = asyncio.get_running_loop()
+
+    def manejar_parada(signum, frame):
+        print("Senal de parada recibida...")
+        loop.call_soon_threadsafe(stop_event.set)
+
+    signal.signal(signal.SIGINT, manejar_parada)
+    signal.signal(signal.SIGTERM, manejar_parada)
 
 
 async def main():
     stop_event = asyncio.Event()
-    configure_stop_signals(stop_event=stop_event)
+    configurar_senales_de_parada(stop_event)
 
-    try:
-        await run_service(stop_event=stop_event)
-
-    except FatalServiceError as error:
-        print(
-            f"{local_datetime_text(milliseconds=False)} "
-            f"[SERVICIO FINALIZADO POR ERROR] "
-            f"{error}"
-        )
-
-        return 1
-
-    except Exception as error:
-        print(
-            f"{local_datetime_text(milliseconds=False)} "
-            f"[ERROR NO CONTROLADO] "
-            f"{error!r}"
-        )
-
-        safe_write_health(status="fatal", detail=repr(error),)
-
-        return 1
-
-    print(
-        "Servicio detenido correctamente"
-    )
-
-    return 0
+    await ejecutar(stop_event)
 
 
 if __name__ == "__main__":
-    raise SystemExit(
-        asyncio.run(main())
-        )
+    asyncio.run(main())
