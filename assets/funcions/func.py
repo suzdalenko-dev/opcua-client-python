@@ -6,8 +6,17 @@ from pathlib import Path
 import shutil
 from assets.exceptions import FatalServiceError
 from assets.funcions.func2 import local_datetime_text
+from assets.funcions.func3 import safe_write_health
 from config import DISK_RETRY_SECONDS, DISK_WRITE_MAX_RETRIES, LOG_DIRECTORY, MIN_FREE_DISK_BYTES, RECONNECT_DELAY_SECONDS, WATCHDOG_INTERVAL_SECONDS
-
+from config import (
+    DISK_RETRY_SECONDS,
+    DISK_WRITE_MAX_RETRIES,
+    LOG_DIRECTORY,
+    MIN_FREE_DISK_BYTES,
+    RECONNECT_DELAY_SECONDS,
+    STAT_TAGS,
+    WATCHDOG_INTERVAL_SECONDS,
+)
 
 
 

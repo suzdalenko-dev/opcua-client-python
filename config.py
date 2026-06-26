@@ -85,6 +85,15 @@ MIN_FREE_DISK_BYTES = (
 # para no llenar journald.
 PRINT_EACH_EVENT = False
 
+# Lista única de todos los tags suscritos.
+ALL_TAGS = tuple(
+    dict.fromkeys(TAGS + OTHER_TAGS)
+)
+
+# Tags que se escriben también en el archivo de estadísticas.
+STAT_TAGS = frozenset(TAGS)
+
+
 '''
 Regla robusta para tu código (sin inventar): considera "reset / lote nuevo" cuando ocurra cualquiera de estas dos:
 
