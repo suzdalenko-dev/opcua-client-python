@@ -38,37 +38,6 @@ def normalize_timestamp(value,):
 
 
 
-def normalize_machine_datetime(value,):
-    """
-    Convierte STAG25 y STAG26 desde:
-        2026/06/26 15:44:34
-    a:
-        2026-06-26 15:44:34
-
-    También convierte:
-        0000/00/00 00:00:00
-    a:
-        0000-00-00 00:00:00
-    """
-    if value is None:
-        return ""
-
-    text = str(
-        value
-    ).strip()
-
-    if text == "":
-        return ""
-
-    try:
-        machine_datetime = (datetime.strptime(text,"%Y/%m/%d %H:%M:%S",))
-        return machine_datetime.strftime("%Y-%m-%d %H:%M:%S")
-
-    except ValueError:
-        return text.replace("/","-",)
-    
-
-
 def status_is_good(status_code,):
     """
     Devuelve True cuando el estado OPC UA
@@ -111,10 +80,10 @@ def get_all_file_path(moment,):
     """
     Archivo que contiene todos los tags.
     Ejemplo:
-        /var/lib/froxa-opcua/2026/06-all.json
+        /var/lib/froxa-opcua/2026/06-all.jsonl
     """
     directory = get_year_directory(moment)
-    return directory / (f"{moment:%m}-all.json")
+    return directory / (f"{moment:%m}-all.jsonl")
 
 
 
@@ -123,10 +92,10 @@ def get_stat_file_path(moment,):
     Archivo que contiene únicamente
     los tags definidos en TAGS.
     Ejemplo:
-        /var/lib/froxa-opcua/2026/06-stat.json
+        /var/lib/froxa-opcua/2026/06-static.jsonl
     """
     directory = get_year_directory(moment)
-    return directory / (f"{moment:%m}-stat.json")
+    return directory / (f"{moment:%m}-static.jsonl")
 
 
 
@@ -284,15 +253,12 @@ def create_queue_item(tag, value, source_timestamp, status_code,):
     Crea el registro y determina en qué
     archivos debe guardarse.
     Todos los tags:
-        MM-all.json
+        MM-all.jsonl
     Tags incluidos en TAGS:
-        MM-all.json
-        MM-stat.json
+        MM-all.jsonl
+        MM-static.jsonl
     """
     received_at = (datetime.now().astimezone())
-
-    if tag in ("STAG25","STAG26",):
-        value = normalize_machine_datetime(value)
 
     record = {
         "received": (local_datetime_text(received_at)),

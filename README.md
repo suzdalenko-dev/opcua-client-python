@@ -18,14 +18,17 @@ organizado por año:
 ```
 /var/lib/froxa-opcua/
 ├── 2026/
-│   ├── 06-all.json     <- TODOS los tags de ese mes (junio)
-│   └── 06-stat.json    <- solo los tags "de estadística" (los de TAGS)
-├── health.json         <- estado del servicio en tiempo real
+│   ├── 06-all.jsonl     <- TODOS los tags de ese mes (junio)
+│   └── 06-static.jsonl  <- solo los tags "de estadística" (los de TAGS)
+├── health.json          <- estado del servicio en tiempo real
 ```
 
-- **`MM-all.json`**: una línea JSON por cada cambio de cualquier tag suscrito.
-- **`MM-stat.json`**: las líneas de los tags definidos en `TAGS` (los de
+- **`MM-all.jsonl`**: una línea JSON por cada cambio de cualquier tag suscrito.
+- **`MM-static.jsonl`**: las líneas de los tags definidos en `TAGS` (los de
   estadística) se guardan **además** aquí, para tenerlos por separado.
+
+El valor se guarda **tal cual llega** del servidor: no se agrupa ni se
+transforma por artículo, lote ni pesada.
 - **`health.json`**: se reescribe continuamente con el estado del servicio
   (conectado, reconectando, espacio en disco, tamaño de la cola, etc.).
 
