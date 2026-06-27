@@ -1,7 +1,7 @@
 import asyncio
 
 from assets.event_queue_file import EVENT_QUEUE
-from assets.utils_file import current_date
+from assets.utils_file import current_date, format_datetime
 
 
 class SusctiptionHandler:
@@ -56,17 +56,6 @@ class SusctiptionHandler:
         source_timestamp = data_value.SourceTimestamp
         server_timestamp = data_value.ServerTimestamp
 
-        source_timestamp_utc = (
-            source_timestamp.isoformat()
-            if source_timestamp is not None
-            else None
-        )
-
-        server_timestamp_utc = (
-            server_timestamp.isoformat()
-            if server_timestamp is not None
-            else None
-        )
 
         # -------------------------------------------------
         # 5. Construir el diccionario
@@ -79,8 +68,8 @@ class SusctiptionHandler:
             "value": clean_value,
             "code": status_code,
             "good": status_good,
-            "source_t": source_timestamp_utc,
-            "server_t": server_timestamp_utc,
+            "source_t": format_datetime(source_timestamp),
+            "server_t": format_datetime(server_timestamp),
         }
 
         print(event)
