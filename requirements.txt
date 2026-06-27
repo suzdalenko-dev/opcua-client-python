@@ -8,3 +8,4 @@
 # asyncua es el cliente OPC UA asincrono que usa el servicio
 # (Client, suscripciones, lectura de nodos...).
 asyncua>=1.1,<2.0
+python-dotenv>=1.2,<2.0

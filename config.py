@@ -1,6 +1,26 @@
-URL               = "opc.tcp://192.168.14.30:4840"
-NODE_ID_PREFIX    = "ns=2;s=CPS-MCS341-DS.STAG."
-READ_TAGS_TIME_MS = 222
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+BASE_DIRECTORY = Path(__file__).resolve().parent
+
+load_dotenv(dotenv_path=BASE_DIRECTORY / ".env",)
+
+def required_env(variable_name):
+    value = os.getenv(variable_name)
+
+    if value is None or value.strip() == "":
+        raise RuntimeError(
+            f"Falta la variable de entorno obligatoria "
+            f"{variable_name!r}"
+        )
+
+    return value
+
+
+URL                  = required_env("OPCUA_URL")
+NODE_ID_PREFIX       = required_env("OPCUA_NODE_ID_PREFIX",)
+JSONL_BASE_DIRECTORY = Path(os.getenv("JSONL_BASE_DIRECTORY",))
+READ_TAGS_TIME_MS    = 222
 
 
 # Estos van al SEGUNDO archivo (ademas del de "todas").
