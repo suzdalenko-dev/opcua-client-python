@@ -7,4 +7,4 @@ venv/
 
 # Datos generados por el servicio (no deben subirse al repositorio)
 *.log
-*.env
+.env
