@@ -22,8 +22,9 @@ NODE_ID_PREFIX             = required_env("OPCUA_NODE_ID_PREFIX",)
 JSONL_BASE_DIRECTORY       = Path(os.getenv("JSONL_BASE_DIRECTORY",))
 READ_TAGS_TIME_MS          = 222
 
-HEARTBEAT_INTERVAL_SECONDS = required_env("HEARTBEAT_INTERVAL_SECONDS ",)
-HEARTBEAT_FILE_NAME        = required_env("HEARTBEAT_FILE_NAME ",)
+HEARTBEAT_INTERVAL_SECONDS = required_env("HEARTBEAT_INTERVAL_SECONDS",)
+HEARTBEAT_FILE_NAME        = required_env("HEARTBEAT_FILE_NAME",)
+
 
 # Estos van al SEGUNDO archivo (ademas del de "todas").
 TAGS = [

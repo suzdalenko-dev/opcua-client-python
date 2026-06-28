@@ -41,9 +41,9 @@ async def opcua_connection():
 
 
 async def main():
-    writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola
     while True:
         try:
+            writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola
             await opcua_connection()
         except Exception as e:
             print(f"ERROR MAIN {e}")
