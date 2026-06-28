@@ -1,5 +1,5 @@
 import asyncio
-from asyncua import Client, ua
+from asyncua import Client
 from assets.jsonl_writer import jsonl_writer
 from assets.suscription_hadler_file import SusctiptionHandler
 from config import ALL_TAGS, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
