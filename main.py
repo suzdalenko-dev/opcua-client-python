@@ -3,9 +3,9 @@ from asyncua import Client
 from assets.conection_state_file import CONNECTION_STATE
 from assets.hertbeat_writer_file import write_headbeat_log
 from assets.jsonl_writer import jsonl_writer
+from assets.supervised_file import supervised
 from assets.suscription_hadler_file import SusctiptionHandler
 from config import ALL_TAGS, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
-
 
 
 async def opcua_connection():
@@ -37,12 +37,15 @@ async def opcua_connection():
             CONNECTION_STATE.set_connected(True)
             print('Conectado')
             await asyncio.sleep(22)
+            
 
 
 
 async def main():
     write_headbeat_log()                                # escritura de head bit 
-    writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola todos los STAGS
+    #  writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola todos los STAGS
+    writer_task = asyncio.create_task(supervised(jsonl_writer, "json_writer"))
+
     while True:
         try:
             CONNECTION_STATE.set_connected(False)
