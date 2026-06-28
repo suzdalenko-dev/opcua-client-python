@@ -20,7 +20,8 @@ def _append_stats(event):
     year_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}"
     year_directory.mkdir(parents=True, exist_ok=True)
     file_path = year_directory / f"{now.month:02d}-stats.json"
-    json_line = json.dump(event, ensure_ascii=False, separators=(",", ":"), default=str)
+    json_line = json.dumps(event, ensure_ascii=False, separators=(",", ":"), default=str)
+    
     with file_path.open(mode="a", encoding="utf-8") as file:
         file.write(json_line)
         file.write("\n")
