@@ -2,6 +2,7 @@ import asyncio
 
 from assets.event_queue_file import EVENT_QUEUE
 from assets.utils_file import current_date, format_datetime
+from config import TAGS
 
 
 class SusctiptionHandler:
@@ -57,8 +58,16 @@ class SusctiptionHandler:
         server_timestamp = data_value.ServerTimestamp
 
 
+        # 5. Escribir los TAGS de estadisticas
+
+        if tag in TAGS:
+            # con un Tread nuevo y con toda la seguridad/simplicidad/estabilidad 
+            print("aqui quiero guradar cada TAG que lleva en un archivo stats")
+
+
+
         # -------------------------------------------------
-        # 5. Construir el diccionario
+        # 6. Construir el diccionario archivo all
         # -------------------------------------------------
 
         event = {
@@ -75,7 +84,7 @@ class SusctiptionHandler:
         print(event)
 
         # -------------------------------------------------
-        # 6. Introducirlo en la cola global
+        # 7. Introducirlo en la cola global archivo all
         # -------------------------------------------------
 
         try:
