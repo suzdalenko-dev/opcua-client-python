@@ -23,7 +23,7 @@ JSONL_BASE_DIRECTORY       = Path(os.getenv("JSONL_BASE_DIRECTORY",))
 READ_TAGS_TIME_MS          = 222
 
 HEARTBEAT_FILE_NAME        = required_env("HEARTBEAT_FILE_NAME",)
-OPCUA_CONNECTED            = False
+
 
 
 # Estos van al SEGUNDO archivo (ademas del de "todas").

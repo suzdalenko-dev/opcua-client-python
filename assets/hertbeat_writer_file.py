@@ -1,10 +1,11 @@
-import asyncio
 import json
-import os
-from datetime import datetime, time
+import time
+from datetime import datetime
 import threading
 from assets.utils_file import current_date
-from config import HEARTBEAT_FILE_NAME, JSONL_BASE_DIRECTORY, OPCUA_CONNECTED
+from config import HEARTBEAT_FILE_NAME, JSONL_BASE_DIRECTORY
+from main import CONNECTION_STATE
+
 
 
 
@@ -13,6 +14,7 @@ def write_headbeat_log():
     thread = threading.Thread(target=write_heartbeat_file,)
     thread.start()
 
+
 def write_heartbeat_file():
     while True:
         """
@@ -20,18 +22,19 @@ def write_heartbeat_file():
         Ejemplo:
         ...2026/head-bit.json
         """
+        time.sleep(22)
+
         now = datetime.now()
         year_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}"
         year_directory.mkdir(parents=True, exist_ok=True, )
         heartbeat_file_path = (year_directory / HEARTBEAT_FILE_NAME)
 
-
-        heartbeat = {"date": current_date(), "conn": ("yes" if OPCUA_CONNECTED else "no"),}
+        heartbeat = {"date": current_date(), "conn": ("yes" if CONNECTION_STATE.is_connected() else "no"),}
 
         with open(heartbeat_file_path, "a", encoding="utf-8") as file:
             json.dump(heartbeat, file, ensure_ascii=False,)
             file.write("\n")
 
 
-        time.sleep(222)
+        
 

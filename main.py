@@ -1,18 +1,19 @@
 import asyncio
 from asyncua import Client
+from assets.conection_state_file import ConnectionState
 from assets.hertbeat_writer_file import write_headbeat_log
 from assets.jsonl_writer import jsonl_writer
 from assets.suscription_hadler_file import SusctiptionHandler
 from config import ALL_TAGS, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
 
 
-
+# Una única instancia compartida por todo el programa.
+CONNECTION_STATE = ConnectionState()
 
 async def opcua_connection():
     #  stop_event = asyncio.Event()
 
     async with Client(url=URL, timeout=22, watchdog_intervall=222.1,) as conn:
-        global OPCUA_CONNECTED
         print(conn)
 
         # Crear un objeto node para cada tag 
@@ -37,24 +38,23 @@ async def opcua_connection():
             print('Conectado')
             await asyncio.sleep(22)
             await conn.check_connection()
-            OPCUA_CONNECTED = True
-
-
+            CONNECTION_STATE.set_connected(True)
+            
 
 
 
 async def main():
-    global OPCUA_CONNECTED
     while True:
         try:
+            CONNECTION_STATE.set_connected(False)
+            write_headbeat_log()
             writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola
             await opcua_connection()
-            write_headbeat_log()
         except Exception as e:
             print(f"ERROR MAIN {e}")
             await asyncio.sleep(11)
         finally:
-            OPCUA_CONNECTED = False
+            CONNECTION_STATE.set_connected(False)
             writer_task.cancel()
 
 
