@@ -14,3 +14,8 @@ class ConnectionState:
     def is_connected(self):
         with self._lock:
             return self._state_connection
+        
+
+
+# Una única instancia compartida por todo el programa.
+CONNECTION_STATE = ConnectionState()

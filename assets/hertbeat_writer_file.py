@@ -2,12 +2,9 @@ import json
 import time
 from datetime import datetime
 import threading
+from assets.conection_state_file import CONNECTION_STATE
 from assets.utils_file import current_date
 from config import HEARTBEAT_FILE_NAME, JSONL_BASE_DIRECTORY
-from main import CONNECTION_STATE
-
-
-
 
 
 def write_headbeat_log():

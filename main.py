@@ -1,14 +1,11 @@
 import asyncio
 from asyncua import Client
-from assets.conection_state_file import ConnectionState
+from assets.conection_state_file import CONNECTION_STATE
 from assets.hertbeat_writer_file import write_headbeat_log
 from assets.jsonl_writer import jsonl_writer
 from assets.suscription_hadler_file import SusctiptionHandler
 from config import ALL_TAGS, NODE_ID_PREFIX, READ_TAGS_TIME_MS, URL
 
-
-# Una única instancia compartida por todo el programa.
-CONNECTION_STATE = ConnectionState()
 
 async def opcua_connection():
     #  stop_event = asyncio.Event()
@@ -41,8 +38,6 @@ async def opcua_connection():
             CONNECTION_STATE.set_connected(True)
             
 
-
-
 async def main():
     while True:
         try:
@@ -56,8 +51,6 @@ async def main():
         finally:
             CONNECTION_STATE.set_connected(False)
             writer_task.cancel()
-
-
 
 
 if __name__ == '__main__':
