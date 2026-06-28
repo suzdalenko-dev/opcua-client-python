@@ -4,7 +4,7 @@ from datetime import datetime
 
 def current_date():
     date_format    = "%Y-%m-%d %H:%M:%S.%f"
-    current_date   = datetime.now().strftime(date_format)[:-5]
+    current_date   = datetime.now().strftime(date_format)[:-3]
     return current_date
 
 
@@ -25,4 +25,4 @@ def format_datetime(date_value):
     if not isinstance(date_value, datetime):
         return ""
 
-    return date_value.strftime(DATE_FORMAT_SECONDS,)[:-5] 
+    return date_value.strftime(DATE_FORMAT_SECONDS,)[:-3] 

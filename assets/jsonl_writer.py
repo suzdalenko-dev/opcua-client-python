@@ -4,24 +4,17 @@ from datetime import datetime
 from pathlib import Path
 
 from assets.event_queue_file import EVENT_QUEUE
+from config import JSONL_BASE_DIRECTORY
 
 
 
-BASE_DIRECTORY = Path("/var/lib/froxa-opcua")
+BASE_DIRECTORY = Path(JSONL_BASE_DIRECTORY)
 WRITE_RETRY_SECONDS = 5
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 
 def append_event_jsonl(event):
-    """
-    Añade el evento como una línea JSON.
-
-    Ejemplo:
-    /var/lib/froxa-opcua/2026/06-all.json
-    """
-
-
     year_directory = (BASE_DIRECTORY / f"{ datetime.now().year:04d}")
     year_directory.mkdir(parents=True, exist_ok=True,)
     file_path = (year_directory / f"{ datetime.now().month:02d}-all.json")
@@ -35,17 +28,26 @@ def append_event_jsonl(event):
         file.flush()
 
 
-
 async def jsonl_writer():
+    """
+    Consume permanentemente la cola de eventos. es el que propones
+    """
     while True:
         event = await EVENT_QUEUE.get()
+
         try:
             while True:
                 try:
-                    await asyncio.to_thread(append_event_jsonl, event)
+                    await asyncio.to_thread(append_event_jsonl, event,)
                     break
-                except Exception as e:
-                    print("ERROR escribiendo jsonl:", e)
-                    await asyncio.sleep(WRITE_RETRY_SECONDS)
+
+                except asyncio.CancelledError:
+                    raise
+
+                except Exception as error:
+                    print(f"ERROR escribiendo JSONL: {error!r}", flush=True,)
+
+                    await asyncio.sleep(WRITE_RETRY_SECONDS,)
+
         finally:
             EVENT_QUEUE.task_done()
