@@ -30,10 +30,14 @@ TAGS = [
     "STAG21",  # producto de las estadisticas
     "STAG22",  # nombre del producto
     "STAG23",  # nº de lote
+    "STAG24",  # nº de batch  -> detecta cierre de lote
+    "STAG25",  # inicio del lote
+    "STAG26",  # fin del lote
 
     "STAG37",  # muestras buenas (excluye dobles/fuera objetivo)
     "STAG38",  # peso total kg (producto bueno)
     "STAG39",  # peso medio
+    "STAG53",  # numero bolsas sin exluir nada  
 ]
 
 # El resto de tags (solo van al archivo "todas").
@@ -47,7 +51,6 @@ OTHER_TAGS = [
     "STAG13",  # Rechazo metal (0) / externo (1) / normal (' ')
     "STAG14",  # Peso medido
 
-    "STAG24",  # nº de batch  -> detecta cierre de lote
     "STAG27",  # metodo: 0=todas / 1=solo PASS  (define que cuenta STAG37)
     "STAG53",  # conteo TOTAL de bolsas
 
@@ -60,8 +63,7 @@ OTHER_TAGS = [
     "STAG34",  # rechazos externos
     "STAG35",  # dobles producto
     "STAG36",  # fuera del objetivo estadistico
-    "STAG25",  # inicio del lote
-    "STAG26",  # fin del lote
+    
 ]
 
 ALL_TAGS = TAGS + OTHER_TAGS

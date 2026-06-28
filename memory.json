@@ -582,7 +582,7 @@
       "title_es": "Cantidad fuera del objetivo estadístico",
       "title_en": "Out of the total statistical target",
       "value_range": "0 a 999999"
-    },
+    }, 
     "STAG37": {
       "tag": "STAG37",
       "node_id_expected": "ns=2;s=CPS-MCS341-DS.STAG.STAG37",
