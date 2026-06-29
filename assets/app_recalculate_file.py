@@ -6,7 +6,7 @@
 
 # Estado acumulado de la producción en curso.
 # Se MUTA (ESTADO[k] = v) -> no necesita 'global'.
-from assets.utils_file import value_to_number
+from assets.utils_file import current_date, value_to_number
 
 
 ESTADO = {
@@ -56,12 +56,14 @@ def index_app(event):
         ESTADO[key] = event["value"]
 
     # 2. Detectar Cambio peso acumulado 
-    if tag == "STAG38":
+    if tag in ("STAG21", "STAG22", "STAG23", "STAG24", "STAG25", "STAG26", "STAG38", "STAG39", "STAG53"):
         peso_acumulado_actual = value_to_number(event["value"])
 
         if old_peso_acumualado  != peso_acumulado_actual:
             # mi idea es si cambia el valor de peso acumulado guardo la linea en la base datos 
-            save_to_db(ESTADO)
+            db_line_unique         = dict(ESTADO)
+            db_line_unique['date'] = current_date()
+            save_to_db(db_line_unique)
 
         old_peso_acumualado = peso_acumulado_actual
 
