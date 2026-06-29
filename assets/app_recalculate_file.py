@@ -38,14 +38,15 @@ TAG_TO_KEY = {
 
 # Escalar que SÍ reasignamos -> este sí necesita 'global' dentro de la función.
 
-old_peso_acumualado = 0
-peso_medio          = 0
-num_bolsas_buenas       = 0
+peso_acumulado_actual = 0
+old_peso_acumualado   = 0
+peso_medio            = 0
+num_bolsas_buenas     = 0
  
 def index_app(event):
     global TAG_TO_KEY
     global ESTADO
-    global old_peso_acumualado, peso_medio, num_bolsas_buenas
+    global old_peso_acumualado, peso_medio, num_bolsas_buenas, peso_acumulado_actual
 
     tag = event["tag"]
     key = TAG_TO_KEY.get(tag)
