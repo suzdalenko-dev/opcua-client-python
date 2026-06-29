@@ -19,6 +19,16 @@ def index_app(event):
         'date':      event['date'],
         'inicio_of': INICIO_OF,
         'fin_of':    FIN_OF_STATS,
+        'art_name': '',
+        'art_erp': '',
+        'lote': '',
+        'batch': '',
+        'kg': 0
     }  
 
     print(line_db)
+
+
+
+def save_to_db():
+   # gurdar linea en la base datos 
