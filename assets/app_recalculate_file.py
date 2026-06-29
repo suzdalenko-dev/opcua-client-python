@@ -55,6 +55,8 @@ def index_app(event):
     # 1. Actualizar el estado con el último valor de ese tag
     if key in ("bolsas_buenas", "bolsas_total", "kg", "peso_medio"):
         ESTADO[key] = value_to_number(event["value"])
+    elif key in ("inicio_of", "fin_of"):
+        ESTADO[key] = event["value"].replace("/", "-")
     else:
         ESTADO[key] = event["value"]
 
@@ -67,10 +69,11 @@ def index_app(event):
             pass
         else:
             peso_medio_calcuculado = ESTADO["kg"] * 1000 / ESTADO["bolsas_buenas"]
+            print(abs(ESTADO["peso_medio"] - peso_medio_calcuculado))
             if abs(ESTADO["peso_medio"] - peso_medio_calcuculado) > 0.1:
                 return
 
-        if old_peso_acumualado  != ESTADO["kg"] :
+        if old_peso_acumualado != ESTADO["kg"] :
             # mi idea es si cambia el valor de peso acumulado guardo la linea en la base datos 
             db_line_unique         = dict(ESTADO)
             db_line_unique['date'] = current_date()

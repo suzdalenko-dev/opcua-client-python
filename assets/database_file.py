@@ -1,7 +1,5 @@
 import threading
-
 import psycopg
-
 from config import (
     POSTGRES_DB,
     POSTGRES_HOST,
@@ -34,7 +32,7 @@ def create_database_connection():
         password=POSTGRES_PASSWORD,
         connect_timeout=5,
         autocommit=True,
-        application_name="froxa-opcua",
+        application_name="suzdalenko-opcua",
     )
 
     print(

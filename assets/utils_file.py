@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 def current_date():
-    date_format    = "%Y-%m-%d %H:%M:%S.%f"
-    current_date   = datetime.now().strftime(date_format)[:-3]
+    date_format    = "%Y-%m-%d %H:%M:%S"
+    current_date   = datetime.now().strftime(date_format)   # [:-3]
     return current_date
 
 
