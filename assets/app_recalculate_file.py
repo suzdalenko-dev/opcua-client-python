@@ -66,7 +66,7 @@ def index_app(event):
         if ESTADO["bolsas_buenas"] == 0:
             pass
         else:
-            peso_medio_calcuculado = ESTADO["kg"] / ESTADO["bolsas_buenas"]
+            peso_medio_calcuculado = ESTADO["kg"] * 1000 / ESTADO["bolsas_buenas"]
             if abs(ESTADO["peso_medio"] - peso_medio_calcuculado) > 0.1:
                 return
 
