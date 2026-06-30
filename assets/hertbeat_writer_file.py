@@ -26,7 +26,10 @@ def write_heartbeat_file():
             now = datetime.now()
             year_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}"
             year_directory.mkdir(parents=True, exist_ok=True, )
-            heartbeat_file_path = (year_directory / HEARTBEAT_FILE_NAME)
+            moth_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}" / f"{now.month:04d}"
+            moth_directory.mkdir(parents=True, exist_ok=True, )
+
+            heartbeat_file_path = (moth_directory / HEARTBEAT_FILE_NAME)
 
             heartbeat = {"date": current_date()[:-4] , "conn": ("yes" if CONNECTION_STATE.is_connected() else "no"),}
 
