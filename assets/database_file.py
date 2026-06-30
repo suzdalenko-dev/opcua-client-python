@@ -1,5 +1,8 @@
 import threading
+import time
 import psycopg
+
+from assets.event_queue_file import DB_QUEUE
 from config import (
     POSTGRES_DB,
     POSTGRES_HOST,
@@ -9,20 +12,25 @@ from config import (
 )
 
 
-# Única conexión PostgreSQL utilizada por el proceso.
+DATABASE_RETRY_SECONDS = 5
+
+
+# Solo lo utiliza el hilo database-writer.
 _connection = None
 
-# Evita que dos llamadas utilicen o reconstruyan
-# simultáneamente la misma conexión.
-_connection_lock = threading.RLock()
+# Referencia al hilo para impedir arrancarlo dos veces.
+_writer_thread = None
+
+# Protege únicamente el arranque del hilo.
+_start_lock = threading.Lock()
 
 
 def create_database_connection():
     """
-    Crea una nueva conexión PostgreSQL.
+    Crea una conexión PostgreSQL nueva.
 
-    autocommit=True hace que cada INSERT quede confirmado
-    inmediatamente, sin tener que ejecutar commit().
+    autocommit=True confirma cada INSERT
+    individualmente.
     """
     connection = psycopg.connect(
         host=POSTGRES_HOST,
@@ -36,9 +44,12 @@ def create_database_connection():
     )
 
     print(
-        f"PostgreSQL conectado: "
-        f"{POSTGRES_USER}@{POSTGRES_HOST}:{POSTGRES_PORT}/"
-        f"{POSTGRES_DB}"
+        "PostgreSQL conectado: "
+        f"{POSTGRES_USER}@"
+        f"{POSTGRES_HOST}:"
+        f"{POSTGRES_PORT}/"
+        f"{POSTGRES_DB}",
+        flush=True,
     )
 
     return connection
@@ -50,37 +61,39 @@ def close_database_connection():
     """
     global _connection
 
-    with _connection_lock:
-        if _connection is not None:
-            try:
-                _connection.close()
-            except Exception:
-                pass
+    if _connection is not None:
+        try:
+            _connection.close()
+        except Exception:
+            pass
 
-        _connection = None
+    _connection = None
 
 
 def get_database_connection():
     """
-    Devuelve la conexión existente.
+    Devuelve siempre la misma conexión.
 
-    Si todavía no existe o está cerrada, crea una nueva.
+    Si todavía no existe o se cerró, crea otra.
     """
     global _connection
 
-    with _connection_lock:
-        if _connection is None or _connection.closed:
-            _connection = create_database_connection()
+    if (
+        _connection is None
+        or _connection.closed
+    ):
+        _connection = create_database_connection()
 
-        return _connection
+    return _connection
 
 
 def insert_pesadora_line(db_line):
     """
     Inserta una línea en public.pesadora_lineas.
 
-    Si la conexión se pierde, la reconstruye y vuelve
-    a intentar el INSERT una sola vez.
+    Devuelve:
+        id   si se insertó.
+        None si ya existía inicio_of + kg.
     """
     sql = """
         INSERT INTO public.pesadora_lineas (
@@ -92,9 +105,9 @@ def insert_pesadora_line(db_line):
             fin_of,
             bolsas_buenas,
             kg,
-            peso_medio,
             bolsas_total,
-            "date"
+            peso_medio,
+            date
         )
         VALUES (
             %s,
@@ -109,40 +122,123 @@ def insert_pesadora_line(db_line):
             %s,
             %s
         )
+        ON CONFLICT ON CONSTRAINT
+            pesadora_lineas_inicio_of_kg_unique
+        DO NOTHING
         RETURNING id
     """
 
     values = (
-        db_line["art_erp"],
-        db_line["art_name"],
-        db_line["lote"],
-        db_line["batch"],
-        db_line["inicio_of"],
-        db_line["fin_of"],
-        db_line["bolsas_buenas"],
-        db_line["kg"],
-        db_line["peso_medio"],
-        db_line["bolsas_total"],
-        db_line["date"],
+        str(db_line["art_erp"]),
+        str(db_line["art_name"]),
+        str(db_line["lote"]),
+        str(db_line["batch"]),
+        str(db_line["inicio_of"]),
+        str(db_line["fin_of"]),
+        float(db_line["bolsas_buenas"]),
+        float(db_line["kg"]),
+        float(db_line["bolsas_total"]),
+        float(db_line["peso_medio"]),
+        str(db_line["date"]),
     )
 
-    with _connection_lock:
-        for attempt in range(1, 3):
-            connection = get_database_connection()
+    connection = get_database_connection()
 
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute(sql, values)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            sql,
+            values,
+        )
 
-                    inserted_id = cursor.fetchone()[0]
+        row = cursor.fetchone()
 
-                return inserted_id
+    # ON CONFLICT DO NOTHING no devuelve ninguna fila.
+    if row is None:
+        return None
 
-            except (
-                psycopg.OperationalError,
-                psycopg.InterfaceError,
-            ):
-                close_database_connection()
+    return row[0]
 
-                if attempt == 2:
-                    raise
+
+def database_writer_loop():
+    """
+    Consume permanentemente DB_QUEUE.
+
+    Si PostgreSQL falla, mantiene la línea actual
+    y vuelve a intentar guardarla.
+    """
+    while True:
+        db_line = DB_QUEUE.get()
+
+        try:
+            while True:
+                try:
+                    inserted_id = insert_pesadora_line(
+                        db_line
+                    )
+
+                    if inserted_id is None:
+                        print(
+                            "Línea PostgreSQL duplicada: "
+                            f"inicio_of="
+                            f"{db_line['inicio_of']}, "
+                            f"kg={db_line['kg']}",
+                            flush=True,
+                        )
+
+                    else:
+                        print(
+                            "Línea PostgreSQL guardada: "
+                            f"id={inserted_id}, "
+                            f"inicio_of="
+                            f"{db_line['inicio_of']}, "
+                            f"kg={db_line['kg']}, "
+                            f"bolsas="
+                            f"{db_line['bolsas_buenas']}",
+                            flush=True,
+                        )
+
+                    # La línea ya fue insertada o era duplicada.
+                    break
+
+                except Exception as error:
+                    close_database_connection()
+
+                    print(
+                        "ERROR PostgreSQL. "
+                        "Se volverá a intentar la misma "
+                        f"línea en "
+                        f"{DATABASE_RETRY_SECONDS} segundos: "
+                        f"{error!r}",
+                        flush=True,
+                    )
+
+                    time.sleep(
+                        DATABASE_RETRY_SECONDS
+                    )
+
+        finally:
+            DB_QUEUE.task_done()
+
+
+def start_database_writer():
+    """
+    Arranca el hilo PostgreSQL una sola vez.
+    """
+    global _writer_thread
+
+    with _start_lock:
+        if (
+            _writer_thread is not None
+            and _writer_thread.is_alive()
+        ):
+            return _writer_thread
+
+        _writer_thread = threading.Thread(
+            target=database_writer_loop,
+            name="database-writer",
+            daemon=True,
+        )
+
+        _writer_thread.start()
+
+        return _writer_thread

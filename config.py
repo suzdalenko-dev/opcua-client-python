@@ -24,6 +24,12 @@ READ_TAGS_TIME_MS          = 222
 HEARTBEAT_FILE_NAME        = required_env("HEARTBEAT_FILE_NAME",)
 
 
+POSTGRES_HOST     = required_env("POSTGRES_HOST")
+POSTGRES_PORT     = int(required_env("POSTGRES_PORT"))
+POSTGRES_DB       = required_env("POSTGRES_DB")
+POSTGRES_USER     = required_env("POSTGRES_USER")
+POSTGRES_PASSWORD = required_env("POSTGRES_PASSWORD")
+
 
 # Estos van al SEGUNDO archivo (ademas del de "todas").
 TAGS = [

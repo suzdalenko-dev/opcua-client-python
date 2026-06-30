@@ -6,6 +6,9 @@
 
 # Estado acumulado de la producción en curso.
 # Se MUTA (ESTADO[k] = v) -> no necesita 'global'.
+import queue
+
+from assets.event_queue_file import DB_QUEUE
 from assets.utils_file import current_date, value_to_number
 
 
@@ -86,4 +89,20 @@ def save_to_db(db_line):
    # esta linea es la que guardare en la BD
    # para calcular ritmo kg/hora linea produccion utilizare varias lineas y
    # comprobando que las lineas buenas tienen valor de kg medio = kg acumulado total / numero bolsas buenas 
-   print(db_line)
+    """
+    Introduce la línea en la cola PostgreSQL.
+
+    El INSERT real lo realiza el hilo
+    database-writer.
+    """
+    try:
+        DB_QUEUE.put_nowait(db_line)
+        print(db_line)
+
+    except Exception as e:
+        print(
+            "DB_QUEUE está llena. "
+            "PostgreSQL no está procesando "
+            "las líneas. " + str(e)
+        )
+   
