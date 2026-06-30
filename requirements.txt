@@ -9,3 +9,4 @@
 # (Client, suscripciones, lectura de nodos...).
 asyncua>=1.1,<2.0
 python-dotenv>=1.2,<2.0
+psycopg[binary]>=3.3,<4.0

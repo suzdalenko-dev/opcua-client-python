@@ -1,6 +1,7 @@
 import asyncio
 from asyncua import Client
 from assets.conection_state_file import CONNECTION_STATE
+from assets.database_file import start_database_writer
 from assets.hertbeat_writer_file import write_headbeat_log
 from assets.jsonl_writer import jsonl_writer
 from assets.stats_writer_file import start_stats_writer
@@ -48,6 +49,7 @@ async def main():
     #  writer_task = asyncio.create_task(jsonl_writer())   # consumidor de la cola todos los STAGS
     writer_task = asyncio.create_task(supervised(jsonl_writer, "json_writer"))
     start_stats_writer()
+    start_database_writer()
 
     while True:
         try:
