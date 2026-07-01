@@ -4,6 +4,7 @@ from datetime import datetime
 import threading
 from assets.conection_state_file import CONNECTION_STATE
 import assets.database_file as database_file
+import assets.app_recalculate_file as app_recalculate_file
 from assets.utils_file import current_date
 from config import HEARTBEAT_FILE_NAME, JSONL_BASE_DIRECTORY
 
@@ -30,9 +31,10 @@ def write_heartbeat_file():
 
             heartbeat_file_path = year_directory / f"{now.month:02d}-{HEARTBEAT_FILE_NAME}"
             heartbeat = {
-                "date": current_date(), 
-                "conn": ("yes" if CONNECTION_STATE.is_connected() else "no"),
-                "db_insert": database_file.DB_INSERT_STATE,    
+                "date"      : current_date(), 
+                "conn"      : ("yes" if CONNECTION_STATE.is_connected() else "no"),
+                "db_push"   : app_recalculate_file.DB_QUEUE_PUSH,
+                "db_insert" : database_file.DB_INSERT_STATE,    
             }
             print(heartbeat)
 

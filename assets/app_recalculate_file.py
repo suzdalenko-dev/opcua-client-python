@@ -1,16 +1,11 @@
 '''
     Acumula el último valor de cada tag de producción y, al detectar el
     Nueva pesada sum de kg estadisticas, emite UNA línea consolidada para la base de datos.
-
 '''
-
-# Estado acumulado de la producción en curso.
-# Se MUTA (ESTADO[k] = v) -> no necesita 'global'.
-import queue
-
 from assets.event_queue_file import DB_QUEUE
 from assets.utils_file import current_date, value_to_number
 
+DB_QUEUE_PUSH = None
 
 ESTADO = {
     "art_erp": "",       # STAG21
@@ -95,11 +90,15 @@ def save_to_db(db_line):
     El INSERT real lo realiza el hilo
     database-writer.
     """
+    global DB_QUEUE_PUSH
+    
     try:
         DB_QUEUE.put_nowait(db_line)
         print(db_line)
+        DB_QUEUE_PUSH = 'ok'
 
     except Exception as e:
+        DB_QUEUE_PUSH = f"Error {e}"
         print(
             "DB_QUEUE está llena. "
             "PostgreSQL no está procesando "
