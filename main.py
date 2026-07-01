@@ -38,7 +38,6 @@ async def opcua_connection():
         while True: 
             await conn.check_connection()
             CONNECTION_STATE.set_connected(True)
-            print('Conectado')
             await asyncio.sleep(22)
             
 

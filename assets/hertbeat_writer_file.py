@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import threading
 from assets.conection_state_file import CONNECTION_STATE
+import assets.database_file as database_file
 from assets.utils_file import current_date
 from config import HEARTBEAT_FILE_NAME, JSONL_BASE_DIRECTORY
 
@@ -26,11 +27,14 @@ def write_heartbeat_file():
             year_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}"
             year_directory.mkdir(parents=True, exist_ok=True, )
 
-            moth_directory = year_directory / f"{now.month:02d}"
-            moth_directory.mkdir(parents=True, exist_ok=True, )
 
-            heartbeat_file_path = moth_directory / HEARTBEAT_FILE_NAME
-            heartbeat = {"date": current_date(), "conn": ("yes" if CONNECTION_STATE.is_connected() else "no"),}
+            heartbeat_file_path = year_directory / f"{now.month:02d}-{HEARTBEAT_FILE_NAME}"
+            heartbeat = {
+                "date": current_date(), 
+                "conn": ("yes" if CONNECTION_STATE.is_connected() else "no"),
+                "db_insert": database_file.DB_INSERT_STATE,    
+            }
+            print(heartbeat)
 
             with open(heartbeat_file_path, "a", encoding="utf-8") as file:
                 json.dump(heartbeat, file, ensure_ascii=False,)

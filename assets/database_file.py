@@ -1,7 +1,6 @@
 import threading
 import time
 import psycopg
-
 from assets.event_queue_file import DB_QUEUE
 from config import (
     POSTGRES_DB,
@@ -11,7 +10,7 @@ from config import (
     POSTGRES_USER,
 )
 
-
+DB_INSERT_STATE        = None
 DATABASE_RETRY_SECONDS = 5
 
 
@@ -166,6 +165,7 @@ def database_writer_loop():
     Si PostgreSQL falla, mantiene la línea actual
     y vuelve a intentar guardarla.
     """
+    global DB_INSERT_STATE
     while True:
         db_line = DB_QUEUE.get()
 
@@ -177,6 +177,7 @@ def database_writer_loop():
                     )
 
                     if inserted_id is None:
+                        DB_INSERT_STATE = 'Línea PostgreSQL duplicada'
                         print(
                             "Línea PostgreSQL duplicada: "
                             f"inicio_of="
@@ -186,6 +187,7 @@ def database_writer_loop():
                         )
 
                     else:
+                        DB_INSERT_STATE = 'ok'
                         print(
                             "Línea PostgreSQL guardada: "
                             f"id={inserted_id}, "
@@ -201,8 +203,8 @@ def database_writer_loop():
                     break
 
                 except Exception as error:
+                    DB_INSERT_STATE = f"ERROR PostgreSQL {str(error)} "
                     close_database_connection()
-
                     print(
                         "ERROR PostgreSQL. "
                         "Se volverá a intentar la misma "
@@ -227,18 +229,9 @@ def start_database_writer():
     global _writer_thread
 
     with _start_lock:
-        if (
-            _writer_thread is not None
-            and _writer_thread.is_alive()
-        ):
+        if _writer_thread is not None and _writer_thread.is_alive():
             return _writer_thread
 
-        _writer_thread = threading.Thread(
-            target=database_writer_loop,
-            name="database-writer",
-            daemon=True,
-        )
-
+        _writer_thread = threading.Thread(target=database_writer_loop, name="database-writer", daemon=True,)
         _writer_thread.start()
-
         return _writer_thread
