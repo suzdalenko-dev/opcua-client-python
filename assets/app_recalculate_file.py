@@ -63,7 +63,7 @@ def index_app(event):
     
     if tag in ("STAG53", "STAG37", "STAG38", "STAG39"):
 
-        if ESTADO["bolsas_buenas"] <= 0 or ESTADO["kg"] <= 0 or ESTADO["inicio_of"] == '0000-00-00 00:00:00':
+        if ESTADO["bolsas_buenas"] <= 0 or ESTADO["kg"] <= 0 or ESTADO["inicio_of"] == '0000-00-00 00:00:00' or ESTADO["fin_of"] == '0000-00-00 00:00:00':
             return
         else:
             peso_medio_calcuculado = ESTADO["kg"] * 1000 / ESTADO["bolsas_buenas"]
