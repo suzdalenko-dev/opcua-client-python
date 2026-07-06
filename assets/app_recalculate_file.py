@@ -54,16 +54,16 @@ def index_app(event):
     if key in ("bolsas_buenas", "bolsas_total", "kg", "peso_medio"):
         ESTADO[key] = value_to_number(event["value"])
     elif key in ("inicio_of", "fin_of"):
-        ESTADO[key] = event["value"].replace("/", "-")
+        ESTADO[key] = str(event["value"]).replace("/", "-").strip()
     else:
-        ESTADO[key] = event["value"]
+        ESTADO[key] = str(event["value"]).strip()
 
     # 2. Detectar Cambio peso acumulado
     # De esta forma tengo 3 posibilidades de escribir la line buena en db, pero solo escrbo con datos completos y correctos  
     
     if tag in ("STAG53", "STAG37", "STAG38", "STAG39"):
 
-        if ESTADO["bolsas_buenas"] <= 0 or ESTADO["kg"] <= 0 or ESTADO["inicio_of"] == '0000-00-00 00:00:00' or ESTADO["fin_of"] == '0000-00-00 00:00:00':
+        if ESTADO["bolsas_buenas"] <= 0 or ESTADO["kg"] <= 0 or ESTADO["inicio_of"] == '0000-00-00 00:00:00' or ESTADO["fin_of"] == '0000-00-00 00:00:00' or ESTADO["art_name"] == str("").strip() or ESTADO["art_erp"] == str("").strip():
             return
         else:
             peso_medio_calcuculado = ESTADO["kg"] * 1000 / ESTADO["bolsas_buenas"]
