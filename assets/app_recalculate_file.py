@@ -38,12 +38,13 @@ TAG_TO_KEY = {
 
 
 old_peso_acumualado   = 0
-
+old_numero_bolsas     = 0
  
 def index_app(event):
     global TAG_TO_KEY
     global ESTADO
     global old_peso_acumualado
+    global old_numero_bolsas
 
     tag = event["tag"]
     key = TAG_TO_KEY.get(tag)
@@ -71,13 +72,15 @@ def index_app(event):
             if abs(ESTADO["peso_medio"] - peso_medio_calcuculado) > 0.1:
                 return
 
-        if old_peso_acumualado != ESTADO["kg"] :
+        if old_peso_acumualado != ESTADO["kg"] and old_numero_bolsas != ESTADO['bolsas_buenas']:
             # mi idea es si cambia el valor de peso acumulado guardo la linea en la base datos 
             db_line_unique         = dict(ESTADO)
             db_line_unique['date'] = current_date()
             save_to_db(db_line_unique)
 
-        old_peso_acumualado = ESTADO["kg"]
+            old_peso_acumualado = ESTADO["kg"]
+            old_numero_bolsas   = ESTADO['bolsas_buenas']
+
 
 
 def save_to_db(db_line):
