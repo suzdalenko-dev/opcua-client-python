@@ -22,7 +22,7 @@ def write_heartbeat_file():
         ...2026/head-bit.json
         """
         try:
-            time.sleep(22)
+            time.sleep(2222)
 
             now = datetime.now()
             year_directory = JSONL_BASE_DIRECTORY / f"{now.year:04d}"

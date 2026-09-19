@@ -79,8 +79,6 @@ class SusctiptionHandler:
         # 6. Escribir los TAGS de estadisticas en el archivo stats.json
 
         if tag in TAGS:
-            print(tag)
-
             try:
                 STATS_QUEUE.put_nowait(event)
             except Exception as e:

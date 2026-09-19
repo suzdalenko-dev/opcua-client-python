@@ -2,24 +2,6 @@ import json
 from pathlib import Path
 from asyncua import ua
 
-'''
-            aqui dentro voy a suscribirse a eventos del servidor upcua y no se de que forma simple cada hora podria probar que la conexion conn esta bien ?¿
-            objects_node = conn.get_objects_node()
-            print(objects_node)
-
-            print("NodeId:",objects_node.nodeid.to_string(),)
-
-            browse_name = await objects_node.read_browse_name()
-
-            print("Nombre:", browse_name,)
-
-        numero_nodos = await descubrir_nodos(
-            node=objects_node,
-            profundidad_maxima=20,
-        )
-        '''
-
-
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -326,11 +308,5 @@ async def descubrir_nodos(
             parent_node_id=None,
             file=file,
         )
-
-    print(
-        f"Exploración terminada: "
-        f"{numero_nodos} nodos guardados"
-    )
-    print(f"Archivo: {archivo_path}")
 
     return numero_nodos

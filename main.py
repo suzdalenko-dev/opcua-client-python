@@ -14,8 +14,6 @@ async def opcua_connection():
     #  stop_event = asyncio.Event()
 
     async with Client(url=URL, timeout=22, watchdog_intervall=222.1,) as conn:
-        print(conn)
-
         # Crear un objeto node para cada tag 
         nodes_by_tag = {
             tag: conn.get_node(f"{NODE_ID_PREFIX}{tag}")

@@ -68,7 +68,7 @@ def index_app(event):
             return
         else:
             peso_medio_calcuculado = ESTADO["kg"] * 1000 / ESTADO["bolsas_buenas"]
-            print(abs(ESTADO["peso_medio"] - peso_medio_calcuculado))
+
             if abs(ESTADO["peso_medio"] - peso_medio_calcuculado) > 0.1:
                 return
 
@@ -97,7 +97,6 @@ def save_to_db(db_line):
     
     try:
         DB_QUEUE.put_nowait(db_line)
-        print(db_line)
         DB_QUEUE_PUSH = 'ok'
 
     except Exception as e:

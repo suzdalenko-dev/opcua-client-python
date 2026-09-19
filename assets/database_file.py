@@ -42,15 +42,6 @@ def create_database_connection():
         application_name="suzdalenko-opcua",
     )
 
-    print(
-        "PostgreSQL conectado: "
-        f"{POSTGRES_USER}@"
-        f"{POSTGRES_HOST}:"
-        f"{POSTGRES_PORT}/"
-        f"{POSTGRES_DB}",
-        flush=True,
-    )
-
     return connection
 
 
@@ -178,26 +169,10 @@ def database_writer_loop():
 
                     if inserted_id is None:
                         DB_INSERT_STATE = 'Línea PostgreSQL duplicada'
-                        print(
-                            "Línea PostgreSQL duplicada: "
-                            f"inicio_of="
-                            f"{db_line['inicio_of']}, "
-                            f"kg={db_line['kg']}",
-                            flush=True,
-                        )
-
+  
                     else:
                         DB_INSERT_STATE = 'ok'
-                        print(
-                            "Línea PostgreSQL guardada: "
-                            f"id={inserted_id}, "
-                            f"inicio_of="
-                            f"{db_line['inicio_of']}, "
-                            f"kg={db_line['kg']}, "
-                            f"bolsas="
-                            f"{db_line['bolsas_buenas']}",
-                            flush=True,
-                        )
+
 
                     # La línea ya fue insertada o era duplicada.
                     break
@@ -205,18 +180,8 @@ def database_writer_loop():
                 except Exception as error:
                     DB_INSERT_STATE = f"ERROR PostgreSQL {str(error)} "
                     close_database_connection()
-                    print(
-                        "ERROR PostgreSQL. "
-                        "Se volverá a intentar la misma "
-                        f"línea en "
-                        f"{DATABASE_RETRY_SECONDS} segundos: "
-                        f"{error!r}",
-                        flush=True,
-                    )
 
-                    time.sleep(
-                        DATABASE_RETRY_SECONDS
-                    )
+                    time.sleep(DATABASE_RETRY_SECONDS)
 
         finally:
             DB_QUEUE.task_done()
