@@ -46,7 +46,7 @@ def write_heartbeat_file():
 
             year_ly = now.year - 1
             previous_year_directory = (JSONL_BASE_DIRECTORY / f"{year_ly:04d}")
-            if previous_year_directory.exists():
+            if previous_year_directory.exists() and previous_year_directory.is_dir():
                 shutil.rmtree(previous_year_directory)
                 print(f"Carpeta eliminada: {previous_year_directory}")
 
