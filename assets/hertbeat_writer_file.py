@@ -1,4 +1,5 @@
 import json
+import shutil
 import time
 from datetime import datetime
 import threading
@@ -41,6 +42,15 @@ def write_heartbeat_file():
             with open(heartbeat_file_path, "a", encoding="utf-8") as file:
                 json.dump(heartbeat, file, ensure_ascii=False,)
                 file.write("\n")
+
+
+            year_ly = now.year - 1
+            previous_year_directory = (JSONL_BASE_DIRECTORY / f"{year_ly:04d}")
+            if previous_year_directory.exists():
+                shutil.rmtree(previous_year_directory)
+                print(f"Carpeta eliminada: {previous_year_directory}")
+
+
 
         except Exception as e:
             print(f"ERROR HEAD BIT {e}")

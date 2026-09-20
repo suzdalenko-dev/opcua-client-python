@@ -2,14 +2,12 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-
 from assets.event_queue_file import EVENT_QUEUE
 from config import JSONL_BASE_DIRECTORY
 
 
-
 BASE_DIRECTORY = Path(JSONL_BASE_DIRECTORY)
-WRITE_RETRY_SECONDS = 5
+WRITE_RETRY_SECONDS = 11
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
