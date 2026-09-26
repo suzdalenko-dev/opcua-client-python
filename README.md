@@ -12,25 +12,60 @@ Proyecto **520746**.
 ## 1. Arquitectura (3 capas)
 
 ```
-   Pesadora ULMA (OPC UA)
-            │  ns=2;s=CPS-MCS341-DS.STAG.*
-            ▼
-┌───────────────────────────────────────────────┐
-│  RECOGER   (Python · asyncio · main.py)         │
-│  - Suscripción OPC UA (callback no bloqueante)  │
-│  - Encola cada evento en 3 colas                │
-└───────────────────────────────────────────────┘
-            │            │                 │
-            ▼            ▼                 ▼
-     EVENT_QUEUE    STATS_QUEUE         DB_QUEUE
-     (asyncio)      (queue, hilo)       (queue, hilo)
-            │            │                 │
-            ▼            ▼                 ▼
-  GUARDAR:  MM-all.jsonl  MM-stats.json   PostgreSQL
-  (crudo, todo)  (crudo stats)         (pesadora_lineas, consolidado)
-                                            │
-                                            ▼
-                          MOSTRAR: API PHP → ritmo kg/hora (panel)
+                                OPC UA SERVER
+                         Pesadora / Gateway CONTEC
+                                     │
+                                     ▼
+                            opcua_connection()
+                              asyncua Client
+                                     │
+                              OPC UA subscription
+                                     │
+                                     ▼
+                          SusctiptionHandler
+                       datachange_notification()
+                                     │
+                              construye event
+                                     │
+                 ┌───────────────────┼──────────────────────┐
+                 │                   │                      │
+                 ▼                   ▼                      ▼
+            EVENT_QUEUE          STATS_QUEUE             index_app()
+          asyncio.Queue           queue.Queue                 │
+                 │                   │                 actualiza ESTADO
+                 │                   │                 valida coherencia
+                 │                   │                      │
+                 ▼                   ▼                      ▼
+          jsonl_writer()       stats_writer thread        DB_QUEUE
+           asyncio Task                                   queue.Queue
+                 │                   │                      │
+                 ▼                   ▼                      ▼
+        asyncio.to_thread()     _append_stats()      database_writer
+                 │                   │                    thread
+                 ▼                   ▼                      │
+         YYYY/MM-all.json     YYYY/MM-stats.json            ▼
+                                                   get_database_connection()
+                                                           │
+                                                   persistent psycopg
+                                                      connection
+                                                           │
+                                                           ▼
+                                                      PostgreSQL
+                                                           │
+                                                           ▼
+                                                   pesadora_lineas
+
+
+                           ┌───────────────────────────────┐
+                           │       HEARTBEAT THREAD        │
+                           │                               │
+                           │  CONNECTION_STATE             │
+                           │  DB_QUEUE_PUSH                │
+                           │  DB_INSERT_STATE              │
+                           │           │                   │
+                           │           ▼                   │
+                           │  YYYY/MM-head-bit.json        │
+                           └───────────────────────────────┘
 ```
 
 Idea central: **recoger ≠ guardar ≠ mostrar**. Cada capa cambia por motivos
