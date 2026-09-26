@@ -32,8 +32,8 @@ Proyecto **520746**.
                  ▼                   ▼                      ▼
             EVENT_QUEUE          STATS_QUEUE             index_app()
           asyncio.Queue           queue.Queue                 │
-                 │                   │                 actualiza ESTADO
-                 │                   │                 valida coherencia
+                 │                   │                 updates STATE
+                 │                   │                 validates consistency
                  │                   │                      │
                  ▼                   ▼                      ▼
           jsonl_writer()       stats_writer thread        DB_QUEUE
